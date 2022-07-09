@@ -14,7 +14,7 @@ public class AddProductPageController {
         this.mainPageController = mainPageController;
         addProductPage =new AddProductPage();
 
-
+    /*
         //addBtn
         addProductPage.getAddBtn().setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -27,6 +27,8 @@ public class AddProductPageController {
 
             }
         });
+
+     */
 
     }
 
