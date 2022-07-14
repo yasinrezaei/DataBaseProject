@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <HBox prefHeight="400.0" prefWidth="600.0" spacing="20.0">
+         <children>
+            <VBox prefHeight="340.0" prefWidth="172.0" spacing="20.0">
+               <children>
+                  <Button fx:id="backBtn" mnemonicParsing="false" text="Back" />
+                  <Label fx:id="productNameLbl" prefHeight="17.0" prefWidth="130.0" text="Chips" />
+                  <Label fx:id="productPriceLbl" prefHeight="17.0" prefWidth="128.0" text="20000" />
+                  <Label fx:id="productCategoryLbl" prefHeight="17.0" prefWidth="133.0" text="Food" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+            <VBox prefHeight="340.0" prefWidth="227.0">
+               <children>
+                  <VBox prefHeight="340.0" prefWidth="404.0">
+                     <children>
+                        <Label style="-fx-font-weight: bold;" text="Comments">
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TableView fx:id="allProductCommentsTable" prefHeight="133.0" prefWidth="242.0">
+                        </TableView>
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="340.0" prefWidth="393.0">
+                     <children>
+                        <Label style="-fx-font-weight: bold;" text="Suggested products">
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TableView fx:id="allSuggestedProductsTable" prefHeight="282.0" prefWidth="180.0">
+                        </TableView>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+            <VBox prefHeight="340.0" prefWidth="216.0" spacing="20.0">
+               <children>
+                  <Button fx:id="addCommentBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="105.0" text="Add Comment" />
+                  <Label fx:id="addCommentLbl" prefHeight="17.0" prefWidth="204.0"  />
+               </children>
+            </VBox>
+         </children>
+         <padding>
+            <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+         </padding>
+      </HBox>
+   </children>
+</AnchorPane>

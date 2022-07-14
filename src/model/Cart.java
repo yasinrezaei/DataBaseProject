@@ -4,10 +4,25 @@ public class Cart {
     private int cartId;
     private int shoppingCartId;
     private int productId;
+    private String productName;
     private int productQuantity;
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
 
     public Cart(int cartId, int shoppingCartId, int productId, int productQuantity) {
         this.cartId = cartId;
+        this.shoppingCartId = shoppingCartId;
+        this.productId = productId;
+        this.productQuantity = productQuantity;
+    }
+
+    public Cart(int shoppingCartId, int productId, int productQuantity) {
         this.shoppingCartId = shoppingCartId;
         this.productId = productId;
         this.productQuantity = productQuantity;

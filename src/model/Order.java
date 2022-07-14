@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+
 public class Order {
     private int orderId;
     private String orderDate;
@@ -7,6 +9,19 @@ public class Order {
     private String orderStatusName;
     private int orderAddress;
     private int orderSendingMethod;
+    private ArrayList<OrderItem> orderItems;
+
+    public Order( ArrayList<OrderItem> orderItems) {
+        this.orderItems = orderItems;
+    }
+
+    public ArrayList<OrderItem> getOrderItems() {
+        return orderItems;
+    }
+
+    public void setOrderItems(ArrayList<OrderItem> orderItems) {
+        this.orderItems = orderItems;
+    }
 
     public int getOrderAddress() {
         return orderAddress;

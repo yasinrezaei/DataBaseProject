@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="300.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox prefHeight="300.0" prefWidth="307.0" spacing="20.0">
+         <children>
+            <ComboBox fx:id="categoryCombo" prefHeight="25.0" prefWidth="308.0" promptText="Category" />
+            <TextField fx:id="productNameTf" promptText="name" />
+            <TextField fx:id="productPriceTf" promptText="price" />
+            <Button fx:id="addNewProductBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="311.0" style="-fx-background-color: #60f140;" text="AddProduct" />
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </VBox>
+   </children>
+</AnchorPane>

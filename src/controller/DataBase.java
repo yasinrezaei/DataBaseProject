@@ -22,15 +22,29 @@ public class DataBase {
         }
     }
 
-    public static int createProduct(DbProduct product) throws SQLException {
+    public static int createProduct(Product product) throws SQLException {
         makeConnection();
-        statement.execute(String.format("insert into products (product_name) values ('%s')",product.getProductName()),Statement.RETURN_GENERATED_KEYS);
+        statement.execute(String.format("insert into products (product_name,product_price,product_category) values ('%s','%d','%d')",product.getProductName(),product.getProductPrice(),product.getCategoryId()),Statement.RETURN_GENERATED_KEYS);
         ResultSet rs = statement.getGeneratedKeys();
         rs.next();//go to first row
         int id = rs.getInt(1);
         closeConnection();
         return id;
     }
+
+    public static void updateProduct(Product product) throws SQLException {
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("UPDATE products SET product_name = ? , product_price = ?, product_category = ? WHERE product_id=?; ");
+
+        statement.setString(1, String.valueOf(product.getProductName()));
+        statement.setInt(2, product.getProductPrice());
+        statement.setInt(3, product.getCategoryId());
+        statement.setInt(4, product.getProductId());
+        statement.executeUpdate();
+
+        closeConnection();
+    }
+
 
     public static void deleteProduct(DbProduct product) throws SQLException {
         makeConnection();
@@ -47,6 +61,29 @@ public class DataBase {
         closeConnection();
         return products;
     }
+    public static ArrayList<Product> getSuggestedProducts(int price,int categoryId) throws SQLException {
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("select * from products where product_category = ? AND abs(product_price-?)<=10 ");
+        statement.setInt(1, categoryId);
+        statement.setInt(2, price);
+        ResultSet rs = statement.executeQuery();
+        ArrayList<Product> products = new ArrayList<>();
+        while (rs.next()){
+            products.add(new Product(rs.getInt("product_id"),rs.getString("product_name"),rs.getInt("product_price"),rs.getInt("product_category")));
+        }
+        closeConnection();
+        return products;
+    }
+    public static Product getProductDetail(int productId) throws SQLException {
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("select * from products where product_id = ?");
+        statement.setString(1, String.valueOf(productId));
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();//go to first row
+        Product product =new Product(resultSet.getInt("product_id"),resultSet.getString("product_name"),resultSet.getInt("product_price"),resultSet.getInt("product_category"));
+        closeConnection();
+        return product;
+    }
 
     public static int createUser(String username,String password,int is_admin) throws SQLException {
         makeConnection();
@@ -58,6 +95,32 @@ public class DataBase {
         return user_id;
 
     }
+    //ticket
+    public static int createTicket(int orderId) throws SQLException {
+
+        makeConnection();
+        statement.execute(String.format("insert into tickets (ticket_order) values ('%d')",orderId),Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = statement.getGeneratedKeys();
+        rs.next();//go to first row
+        int ticket_id = -1;
+        ticket_id = rs.getInt(1);
+        closeConnection();
+        return ticket_id;
+    }
+
+    public static ArrayList<Ticket> getUserTickets(int userId) throws SQLException {
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("SELECT tickets.ticket_id,orders.order_id ,orders.order_user,orders.order_date,user.username FROM tickets ,orders,user  where orders.order_id = tickets.ticket_order and orders.order_user = ? and orders.order_user = user.user_id;");
+        statement.setString(1, String.valueOf(userId));
+        ResultSet resultSet = statement.executeQuery();
+        ArrayList<Ticket> tickets = new ArrayList<>();
+        while (resultSet.next()){
+            tickets.add(new Ticket(resultSet.getInt("ticket_id"),resultSet.getInt("order_id"),resultSet.getString("username"),resultSet.getString("order_date")));
+        }
+        closeConnection();
+        return tickets;
+    }
+
 
     //shopping_cart
     public static int getShoppingCartId(int userId) throws SQLException {
@@ -82,6 +145,24 @@ public class DataBase {
         }
         closeConnection();
         return carts;
+    }
+    //add to shopping cart
+    public static int addToShoppingCart(Cart cart) throws SQLException {
+        int id=-1;
+        makeConnection();
+        statement.execute(String.format("insert into cartitems (shoppingcart_id,product_id,product_quantity) values ('%s','%d','%d')",cart.getShoppingCartId(),cart.getProductId(),cart.getProductQuantity()),Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = statement.getGeneratedKeys();
+        rs.next();//go to first row
+        id = rs.getInt(1);
+        closeConnection();
+        return id;
+    }
+
+    //delete cart from shopping cart
+    public static void deleteCart(int cartId) throws SQLException {
+        makeConnection();
+        statement.execute(String.format("delete from cartitems where cart_id=%d",cartId));
+        closeConnection();
     }
 
 
@@ -152,6 +233,116 @@ public class DataBase {
         closeConnection();
         return categoryName;
     }
+
+
+
+    //profile
+    public static Profile getProfile(int userId) throws SQLException {
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("select * from profiles where profile_user = ?");
+        statement.setString(1, String.valueOf(userId));
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();//go to first row
+        Profile profile =new Profile(resultSet.getInt("profile_id"),resultSet.getInt("profile_user"),resultSet.getString("name"),resultSet.getString("last_name"),resultSet.getString("phone_number"));
+
+        closeConnection();
+        return profile;
+    }
+
+    public static void updateProfile(Profile profile) throws SQLException {
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("UPDATE profiles SET name = ? , last_name = ?, phone_number = ? WHERE profile_user=?; ");
+
+        statement.setString(1, String.valueOf(profile.getName()));
+        statement.setString(2, profile.getLastName());
+        statement.setString(3, profile.getPhoneNumber());
+        statement.setInt(4, profile.getUserId());
+        statement.executeUpdate();
+
+        closeConnection();
+    }
+
+
+
+
+    //Addresses
+    public static ArrayList<Address> getUserAllAddresses(int userId) throws SQLException {
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("select * from addresses where address_user = ?");
+        statement.setString(1, String.valueOf(userId));
+        ResultSet resultSet = statement.executeQuery();
+        ArrayList<Address> addresses = new ArrayList<>();
+        while (resultSet.next()){
+            addresses.add(new Address(resultSet.getInt("address_id"),resultSet.getString("address_text"),resultSet.getInt("address_user")));
+        }
+        closeConnection();
+        return addresses;
+    }
+    public static void createAddress(String addressText,int addressUser) throws SQLException {
+        makeConnection();
+        statement.execute(String.format("insert into addresses (address_text,address_user) values ('%s','%d')",addressText,addressUser),Statement.RETURN_GENERATED_KEYS);
+        closeConnection();
+    }
+
+   //comments
+    public static ArrayList<Comment> getProductComments(int productId) throws SQLException {
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("select * from comments,profiles where comment_product = ? AND (comment_user=profile_user)");
+        statement.setString(1, String.valueOf(productId));
+        ResultSet resultSet = statement.executeQuery();
+        ArrayList<Comment> comments = new ArrayList<>();
+        while (resultSet.next()){
+            comments.add(new Comment(resultSet.getString("comment_text"),resultSet.getInt("comment_user"),resultSet.getInt("comment_product"),resultSet.getString("name")+" "+resultSet.getString("last_name")));
+        }
+        closeConnection();
+        return comments;
+    }
+    public static int createComment(Comment comment) throws SQLException {
+        int id=-1;
+        makeConnection();
+        statement.execute(String.format("insert into comments (comment_text,comment_user,comment_product,comment_like_cont,comment_dislike_count) values ('%s','%d','%d','%d','%d')",comment.getCommentText(),comment.getCommentUserId(),comment.getCommentProductId(),0,0),Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = statement.getGeneratedKeys();
+        rs.next();//go to first row
+        id = rs.getInt(1);
+        closeConnection();
+        return id;
+    }
+
+    //Users
+    public static int userAuth(String userName,String password) throws SQLException {
+        int userId=-1;
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("select * from user where username = ? AND password= ?");
+        statement.setString(1, String.valueOf(userName));
+        statement.setString(2, String.valueOf(password));
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+        userId = resultSet.getInt("user_id");
+
+        closeConnection();
+        return userId;
+    }
+
+
+    //user all finished-order items
+    public static ArrayList<OrderItem> getAllFinishedOrderItems(int userId) throws SQLException {
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("SELECT orders.order_id,orderitems.product_id  FROM orders,orderitems where orders.order_id = orderitems.order_id and orders.is_finished=1 and orders.order_user=?;");
+        statement.setInt(1,userId);
+        ResultSet resultSet = statement.executeQuery();
+        ArrayList<OrderItem> orderItems = new ArrayList<>();
+        while (resultSet.next()){
+
+            orderItems.add(new OrderItem(resultSet.getInt("product_id")));
+        }
+
+        closeConnection();
+        return orderItems;
+
+    }
+
+
+
 
 
 }

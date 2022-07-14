@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
 
 public class LoginPageController implements Initializable {
@@ -32,18 +33,22 @@ public class LoginPageController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         login_button.setOnAction(e->{
-            if(admin.getUsername().equals(username_field.getText()) && admin.getPassword().equals(password_field.getText())){
-                FXMLLoader loader = new FXMLLoader(this.getClass().getResource("../view/main_page.fxml"));
-                try {
-                    loader.load();
-                    Stage stage =new Stage();
-                    stage.setScene(new Scene((Parent) loader.getRoot()));
-                    stage.show();
+            try {
+                int userId=DataBase.userAuth(username_field.getText(),password_field.getText());
+                if(userId!=-1){
+                    int userShoppingCartId = DataBase.getShoppingCartId(userId);
+                    Preferences pref;
+                    pref = Preferences.userNodeForPackage(LoginPageController.class);
+                    pref.put("userId", String.valueOf(userId));
+                    pref.put("userShoppingCartId",String.valueOf(userShoppingCartId));
+                    MainPageController mainPageController =new MainPageController();
+                    mainPageController.show();
                     login_button.getScene().getWindow().hide();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
 
+
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
             }
         });
         goto_signup_button.setOnAction(e->{
