@@ -54,7 +54,7 @@ public class MainPageController implements Initializable {
     private Button deleteCartBtn;
 
     @FXML
-    private Button addProductBtn;
+    private Button addProductBtn,addStatusBtn,addSendingMethodBtn;
     @FXML
     private Button editProductBtn;
 
@@ -74,6 +74,20 @@ public class MainPageController implements Initializable {
     @FXML
     private Button editUserProfileBtn;
 
+    @FXML
+    private Button orderDetailBtn,logOutBtn;
+    @FXML
+    private Button showTicketDetailBtn,createOrderBtn;
+    @FXML
+    private Tab shoppingCartTab,settingTab;
+
+    @FXML
+    private TableView<Status> allStatusesTable;
+    @FXML
+    private TextField settingDataTf;
+
+    @FXML
+    private TableView<SendingMethod> allSendingMethodsTable;
     ArrayList<Product> products = null;
 
 
@@ -93,6 +107,26 @@ public class MainPageController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        //-----is admin--------------
+        if(Preferences.userNodeForPackage(MainPageController.class).getInt("isAdmin",0)==0){
+            addProductBtn.setVisible(false);
+            editProductBtn.setVisible(false);
+            settingTab.setDisable(true);
+        }
+        else{
+            addToShoppingCartBtn.setVisible(false);
+            showProductDetailBtn.setVisible(false);
+            shoppingCartTab.setDisable(true);
+            allUserAddressesTable.setVisible(false);
+            addAddressBtn.setVisible(false);
+
+        }
+
+        //--------------------------
+
+
+
+
         pref = Preferences.userNodeForPackage(MainPageController.class);
         userId = Integer.valueOf(pref.get("userId","0"));
 
@@ -254,6 +288,31 @@ public class MainPageController implements Initializable {
 
         });
 
+        createOrderBtn.setOnAction(e->{
+
+            CreateOrderPageController createOrderPageController =new CreateOrderPageController(this);
+            createOrderPageController.show();
+
+        });
+
+
+        //logout
+        logOutBtn.setOnAction(e->{
+            FXMLLoader loader = new FXMLLoader(this.getClass().getResource("../view/login_page.fxml"));
+            try {
+                loader.load();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            thisStage.setScene(new Scene((Parent) loader.getRoot()));
+            thisStage.setWidth(600);
+            thisStage.setHeight(400);
+            thisStage.show();
+            //logOutBtn.getScene().getWindow().hide();
+        });
+
+
+
 
 
 
@@ -271,30 +330,8 @@ public class MainPageController implements Initializable {
 
 
         allLastOrdersTable.getColumns().addAll(orderDateCol,orderStatusCol);
-        ArrayList<Order> orders = null;
-        ArrayList<Status> statuses = null;
-        try {
-            statuses = DataBase.getAllStatuses();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        try {
-            orders = DataBase.getAllOrders(userId);
-            for (Order order : orders) {
-                for(Status status:statuses){
-                    if(order.getOrderStatus()==status.getStatusId()){
-                        order.setOrderStatusName(status.getStatusName());
-                        break;
-                    }
-                }
-                allLastOrdersTable.getItems().add(order);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        //create support
+        setAllLastOrdersTable();
+        //create Ticket
         createSupportBtn.setOnAction(e->{
             try {
                 int ticketId = DataBase.createTicket(allLastOrdersTable.getSelectionModel().getSelectedItem().getOrderId());
@@ -349,6 +386,17 @@ public class MainPageController implements Initializable {
         allTicketsTable.getColumns().addAll(ticketIdCol,ticketUserCol,ticketOrderIdCol,ticketOrderDateCol);
         setAllTicketsTableData();
 
+        showTicketDetailBtn.setOnAction(e->{
+            TicketChatsPageController ticketChatsPageController =new TicketChatsPageController(allTicketsTable.getSelectionModel().getSelectedItem());
+            ticketChatsPageController.show();
+        });
+
+        //order detail
+        orderDetailBtn.setOnAction(e->{
+            OrderDetailPageController orderDetailPageController = new OrderDetailPageController(allLastOrdersTable.getSelectionModel().getSelectedItem().getOrderId(),this);
+            orderDetailPageController.show();
+        });
+
 
 
 
@@ -372,12 +420,126 @@ public class MainPageController implements Initializable {
         });
 
 
+
+        //tab setting
+        TableColumn<Status,Integer> statusIdCol = new TableColumn<>("ID");
+        TableColumn<Status,String> statusNameCol = new TableColumn<>("Name");
+        statusIdCol.setCellValueFactory(new PropertyValueFactory<>("statusId"));
+        statusNameCol.setCellValueFactory(new PropertyValueFactory<>("statusName"));
+        allStatusesTable.getColumns().addAll(statusIdCol,statusNameCol);
+        setAllStatusTableData();
+
+        TableColumn<SendingMethod,Integer> sendingMethodIdCol = new TableColumn<>("ID");
+        TableColumn<SendingMethod,String> sendingMethodNameCol = new TableColumn<>("Name");
+        sendingMethodIdCol.setCellValueFactory(new PropertyValueFactory<>("sendingMethodId"));
+        sendingMethodNameCol.setCellValueFactory(new PropertyValueFactory<>("sendingMethodName"));
+        allSendingMethodsTable.getColumns().addAll(sendingMethodIdCol,sendingMethodNameCol);
+        setAllSendingMethodsTableData();
+
+
+
+        addStatusBtn.setOnAction(e->{
+            try {
+                DataBase.createStatus(settingDataTf.getText());
+                setAllStatusTableData();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        addSendingMethodBtn.setOnAction(e->{
+            try {
+                DataBase.createSendingMethod(settingDataTf.getText());
+                setAllSendingMethodsTableData();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+
+    }
+
+    private void setAllSendingMethodsTableData() {
+        for(int i=0;i<allSendingMethodsTable.getItems().size();i++){
+            allSendingMethodsTable.getItems().clear();
+        }
+        ArrayList<SendingMethod> sendingMethods = new ArrayList<>();
+        try {
+            sendingMethods = DataBase.getAllSendingMethods();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        for(SendingMethod sendingMethod:sendingMethods){
+            allSendingMethodsTable.getItems().add(sendingMethod);
+        }
+    }
+
+    private void setAllStatusTableData() {
+        for(int i=0;i<allStatusesTable.getItems().size();i++){
+            allStatusesTable.getItems().clear();
+        }
+        ArrayList<Status> statuses = new ArrayList<>();
+        try {
+            statuses = DataBase.getAllStatuses();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        for(Status status:statuses){
+            allStatusesTable.getItems().add(status);
+        }
+    }
+
+    public void setAllLastOrdersTable() {
+        for(int i=0;i<allLastOrdersTable.getItems().size();i++){
+            allLastOrdersTable.getItems().clear();
+
+        }
+        ArrayList<Order> orders = null;
+        ArrayList<Status> statuses = null;
+        try {
+            statuses = DataBase.getAllStatuses();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        try {
+            //-----is admin--------------
+            if(Preferences.userNodeForPackage(MainPageController.class).getInt("isAdmin",0)==0){
+                orders = DataBase.getAllOrders(userId);
+            }
+            else{
+                orders = DataBase.getAllOrders();
+            }
+
+
+
+
+
+            for (Order order : orders) {
+                for(Status status:statuses){
+                    if(order.getOrderStatus()==status.getStatusId()){
+                        order.setOrderStatusName(status.getStatusName());
+                        break;
+                    }
+                }
+                allLastOrdersTable.getItems().add(order);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void setAllTicketsTableData() {
         ArrayList<Ticket> tickets = null;
         try {
-            tickets = DataBase.getUserTickets(Integer.valueOf(pref.get("userId","0")));
+            //-----is admin--------------
+            if(Preferences.userNodeForPackage(MainPageController.class).getInt("isAdmin",0)==0){
+                tickets = DataBase.getUserTickets(Integer.valueOf(pref.get("userId","0")));
+            }
+            else{
+                tickets = DataBase.getAllTickets();
+            }
+
             for (Ticket ticket : tickets) {
                 allTicketsTable.getItems().add(ticket);
             }
@@ -424,5 +586,21 @@ public class MainPageController implements Initializable {
 
     public Label getPhoneNumberLbl() {
         return phoneNumberLbl;
+    }
+
+    public TableView<Cart> getAllCartsTable() {
+        return allCartsTable;
+    }
+
+    public void setAllCartsTable(TableView<Cart> allCartsTable) {
+        this.allCartsTable = allCartsTable;
+    }
+
+    public TableView<Order> getAllLastOrdersTable() {
+        return allLastOrdersTable;
+    }
+
+    public void setAllLastOrdersTable(TableView<Order> allLastOrdersTable) {
+        this.allLastOrdersTable = allLastOrdersTable;
     }
 }

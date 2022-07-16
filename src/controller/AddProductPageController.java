@@ -35,6 +35,8 @@ public class AddProductPageController implements Initializable {
     private ComboBox categoryCombo;
     @FXML
     private Button addNewProductBtn;
+    @FXML
+    private Button setOrderStatusBtn;
 
     public AddProductPageController(boolean isAdd, MainPageController mainPageController) {
         this.isAdd = isAdd;
@@ -105,6 +107,13 @@ public class AddProductPageController implements Initializable {
         }
 
         categoryCombo.setItems(FXCollections.observableArrayList(categories));
+
+
+        ///
+        setOrderStatusBtn.setOnAction(e->{
+
+        });
+
 
 
 

@@ -1,4 +1,5 @@
-FROM openjdk:8
-COPY . /tmp
-WORKDIR /tmp
-CMD ["java", "-jar", "JavaPassFromConsole.jar"]
+FROM java:openjdk-8
+
+RUN apt-get update && \
+    apt-get -y upgrade && \
+    apt-get -y install openjfx

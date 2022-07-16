@@ -9,6 +9,35 @@ public class Order {
     private String orderStatusName;
     private int orderAddress;
     private int orderSendingMethod;
+    private int orderUserId;
+    private int finished;
+
+
+    public Order(String orderDate, int orderStatus, int orderAddress, int orderSendingMethod, int orderUserId, int finished) {
+        this.orderDate = orderDate;
+        this.orderStatus = orderStatus;
+        this.orderAddress = orderAddress;
+        this.orderSendingMethod = orderSendingMethod;
+        this.orderUserId = orderUserId;
+        this.finished = finished;
+    }
+
+    public int getFinished() {
+        return finished;
+    }
+
+    public void setFinished(int finished) {
+        this.finished = finished;
+    }
+
+    public int getOrderUserId() {
+        return orderUserId;
+    }
+
+    public void setOrderUserId(int orderUserId) {
+        this.orderUserId = orderUserId;
+    }
+
     private ArrayList<OrderItem> orderItems;
 
     public Order( ArrayList<OrderItem> orderItems) {

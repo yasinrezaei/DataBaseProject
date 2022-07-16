@@ -22,18 +22,23 @@ public class SignupPageController implements Initializable {
     @FXML private Button signup_button;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
         signup_button.setOnAction(e->{
             int user_id =-1;
             if(checkTextFields()){
                 try {
                     user_id =DataBase.createUser(username_field.getText(),password_field.getText(),0);
-                    System.out.println("user id"+user_id);
+                    DataBase.createShoppingCart(user_id);
                 } catch (SQLException ex) {
                     System.out.println("Error in user creation");
-                    System.out.println("user id"+user_id);
                     throw new RuntimeException(ex);
                 }
                 if(user_id!=-1){
+                    try {
+                        DataBase.createProfile(user_id);
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
                     FXMLLoader loader = new FXMLLoader(this.getClass().getResource("../view/login_page.fxml"));
                     try {
                         loader.load();

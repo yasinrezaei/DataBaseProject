@@ -45,12 +45,6 @@ public class DataBase {
         closeConnection();
     }
 
-
-    public static void deleteProduct(DbProduct product) throws SQLException {
-        makeConnection();
-        statement.execute(String.format("delete from products where id=%d",product.getId()));
-        closeConnection();
-    }
     public static ArrayList<Product> getAllProducts() throws SQLException {
         makeConnection();
         ResultSet rs = statement.executeQuery("select * from products");
@@ -61,6 +55,26 @@ public class DataBase {
         closeConnection();
         return products;
     }
+
+    //sending methods
+
+    public static ArrayList<SendingMethod> getAllSendingMethods() throws SQLException {
+        makeConnection();
+        ResultSet rs = statement.executeQuery("select * from sendingmethods");
+        ArrayList<SendingMethod> sendingMethods = new ArrayList<>();
+        while (rs.next()){
+            sendingMethods.add(new SendingMethod(rs.getInt("sendingmethod_id"),rs.getString("sendingmethod_name")));
+        }
+        closeConnection();
+        return sendingMethods;
+    }
+
+
+
+
+
+
+
     public static ArrayList<Product> getSuggestedProducts(int price,int categoryId) throws SQLException {
         makeConnection();
         PreparedStatement statement = connection.prepareStatement("select * from products where product_category = ? AND abs(product_price-?)<=10 ");
@@ -120,6 +134,18 @@ public class DataBase {
         closeConnection();
         return tickets;
     }
+    public static ArrayList<Ticket> getAllTickets() throws SQLException {
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("SELECT tickets.ticket_id,orders.order_id ,orders.order_user,orders.order_date,user.username FROM tickets ,orders,user  where orders.order_id = tickets.ticket_order  and orders.order_user = user.user_id;");
+        ResultSet resultSet = statement.executeQuery();
+        ArrayList<Ticket> tickets = new ArrayList<>();
+        while (resultSet.next()){
+            tickets.add(new Ticket(resultSet.getInt("ticket_id"),resultSet.getInt("order_id"),resultSet.getString("username"),resultSet.getString("order_date")));
+        }
+        closeConnection();
+        return tickets;
+    }
+
 
 
     //shopping_cart
@@ -132,6 +158,37 @@ public class DataBase {
         int shoppingCartId = resultSet.getInt("shoppingcart_id");
         closeConnection();
         return shoppingCartId;
+    }
+
+    //create shopping cart
+    public static void createShoppingCart(int userId) throws SQLException {
+
+        makeConnection();
+        statement.execute(String.format("insert into shoppingcarts (shoppingcart_user) values ('%d')",userId),Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = statement.getGeneratedKeys();
+        rs.next();//go to first row
+        closeConnection();
+
+    }
+
+
+    //create status
+    public static void createStatus(String name) throws SQLException {
+
+        makeConnection();
+        statement.execute(String.format("insert into orderstatuses (orderstatus_name) values ('%s')",name),Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = statement.getGeneratedKeys();
+        closeConnection();
+
+    }
+    //create sending method
+    public static void createSendingMethod(String name) throws SQLException {
+
+        makeConnection();
+        statement.execute(String.format("insert into sendingmethods (sendingmethod_name) values ('%s')",name),Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = statement.getGeneratedKeys();
+        closeConnection();
+
     }
 
     public static ArrayList<Cart> getCarts(int shoppingCartId) throws SQLException {
@@ -179,6 +236,17 @@ public class DataBase {
         closeConnection();
         return orders;
     }
+    public static ArrayList<Order> getAllOrders() throws SQLException {
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("select * from orders ");
+        ResultSet resultSet = statement.executeQuery();
+        ArrayList<Order> orders = new ArrayList<>();
+        while (resultSet.next()){
+            orders.add(new Order(resultSet.getInt("order_id"),resultSet.getString("order_date"),resultSet.getInt("order_status")));
+        }
+        closeConnection();
+        return orders;
+    }
 
 
     //status
@@ -204,7 +272,44 @@ public class DataBase {
         return statusName;
     }
 
+    //ticket chats
+    public static ArrayList<Chat> getTicketChats(int TicketId) throws SQLException {
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM gigikala.messages ,gigikala.user where user.user_id = messages.message_user and message_ticket = ?");
+        statement.setString(1, String.valueOf(TicketId));
+        ResultSet resultSet = statement.executeQuery();
+        ArrayList<Chat> chats = new ArrayList<>();
+        while (resultSet.next()){
+            chats.add(new Chat(resultSet.getInt("message_id"),resultSet.getInt("message_ticket"),resultSet.getString("message_text"),resultSet.getString("username")));
+        }
+        closeConnection();
+        return chats;
+    }
 
+    //create chat
+    public static int createChat(String text,int ticketId,int userId) throws SQLException {
+        makeConnection();
+        statement.execute(String.format("insert into messages (message_ticket,message_text,message_user) values ('%d','%s','%d')",ticketId,text,userId),Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = statement.getGeneratedKeys();
+        rs.next();//go to first row
+        int chatId = -1;
+        chatId = rs.getInt(1);
+        closeConnection();
+        return chatId;
+    }
+
+    //update order
+
+    public static void updateOrderStatus(int orderId,int statusId) throws SQLException {
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("UPDATE orders SET order_status = ? WHERE order_id=?; ");
+
+        statement.setInt(1, statusId);
+        statement.setInt(2, orderId);
+        statement.executeUpdate();
+
+        closeConnection();
+    }
 
 
 
@@ -262,6 +367,15 @@ public class DataBase {
         closeConnection();
     }
 
+    //create profile
+    public static void createProfile(int userId) throws SQLException {
+        makeConnection();
+        statement.execute(String.format("insert into profiles (name,last_name,phone_number,profile_user) values ('%s','%s','%s','%d')"," "," "," ",userId),Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = statement.getGeneratedKeys();
+        closeConnection();
+
+    }
+
 
 
 
@@ -309,7 +423,7 @@ public class DataBase {
     }
 
     //Users
-    public static int userAuth(String userName,String password) throws SQLException {
+    public static User userAuth(String userName,String password) throws SQLException {
         int userId=-1;
         makeConnection();
         PreparedStatement statement = connection.prepareStatement("select * from user where username = ? AND password= ?");
@@ -317,10 +431,9 @@ public class DataBase {
         statement.setString(2, String.valueOf(password));
         ResultSet resultSet = statement.executeQuery();
         resultSet.next();
-        userId = resultSet.getInt("user_id");
-
+        User user =new User(resultSet.getInt("user_id"),resultSet.getString("username"),resultSet.getInt("is_admin"));
         closeConnection();
-        return userId;
+        return user;
     }
 
 
@@ -340,6 +453,49 @@ public class DataBase {
         return orderItems;
 
     }
+
+
+    //create order
+    public static int createOrder(Order order) throws SQLException {
+        makeConnection();
+        statement.execute(String.format("insert into orders (order_user, order_date, order_address,order_status, order_sending_method,is_finished) values ('%d','%s','%d','%d','%d','%d')",order.getOrderUserId(),order.getOrderDate(),order.getOrderAddress(),order.getOrderStatus(),order.getOrderSendingMethod(),order.getFinished()),Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = statement.getGeneratedKeys();
+        rs.next();//go to first row
+        int id = rs.getInt(1);
+        closeConnection();
+        return id;
+    }
+
+    //
+    public static int createOrderItem(OrderItem orderItem) throws SQLException {
+        makeConnection();
+        statement.execute(String.format("insert into orderitems (order_id, product_id,product_quantity) values ('%d','%d','%d')",orderItem.getOredrId(),orderItem.getProductId(),orderItem.getProductQuantity()),Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = statement.getGeneratedKeys();
+        rs.next();//go to first row
+        int id = rs.getInt(1);
+        closeConnection();
+        return id;
+    }
+
+    //user all order orderitems
+    public static ArrayList<OrderItem> getAllOrderOrderItems(int orderId) throws SQLException {
+        makeConnection();
+        PreparedStatement statement = connection.prepareStatement("SELECT *  FROM orderitems,products where orderitems.product_id = products.product_id and order_id = ? ;");
+        statement.setInt(1,orderId);
+        ResultSet resultSet = statement.executeQuery();
+        ArrayList<OrderItem> orderItems = new ArrayList<>();
+        while (resultSet.next()){
+
+            orderItems.add(new OrderItem(resultSet.getInt("product_quantity"),resultSet.getString("product_name")));
+        }
+
+        closeConnection();
+        return orderItems;
+
+    }
+
+
+
 
 
 

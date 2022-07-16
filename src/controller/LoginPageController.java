@@ -13,6 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import model.Admin;
+import model.User;
 import view.LoginPage;
 
 import java.io.IOException;
@@ -34,19 +35,18 @@ public class LoginPageController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         login_button.setOnAction(e->{
             try {
-                int userId=DataBase.userAuth(username_field.getText(),password_field.getText());
-                if(userId!=-1){
-                    int userShoppingCartId = DataBase.getShoppingCartId(userId);
-                    Preferences pref;
-                    pref = Preferences.userNodeForPackage(LoginPageController.class);
-                    pref.put("userId", String.valueOf(userId));
-                    pref.put("userShoppingCartId",String.valueOf(userShoppingCartId));
-                    MainPageController mainPageController =new MainPageController();
-                    mainPageController.show();
-                    login_button.getScene().getWindow().hide();
+                User user=DataBase.userAuth(username_field.getText(),password_field.getText());
+                int userShoppingCartId = DataBase.getShoppingCartId(user.getUserId());
+                Preferences pref;
+                pref = Preferences.userNodeForPackage(LoginPageController.class);
+                pref.put("userId", String.valueOf(user.getUserId()));
+                pref.put("userShoppingCartId",String.valueOf(userShoppingCartId));
+                pref.putInt("isAdmin",user.getIsAdmin());
+                MainPageController mainPageController =new MainPageController();
+                mainPageController.show();
+                login_button.getScene().getWindow().hide();
 
 
-                }
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -30,7 +31,7 @@
                     </children></AnchorPane>
             </content>
         </Tab>
-        <Tab text="ShoppingCart">
+        <Tab fx:id="shoppingCartTab" text="ShoppingCart">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                     <children>
@@ -38,7 +39,7 @@
                         </TableView>
                         <VBox layoutX="443.0" layoutY="279.0" prefHeight="71.0" prefWidth="113.0" spacing="10.0">
                             <children>
-                                <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="108.0" style="-fx-background-color: #60f140; -fx-font-weight: bold;" text="Buy" />
+                                <Button fx:id="createOrderBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="108.0" style="-fx-background-color: #60f140; -fx-font-weight: bold;" text="Buy" />
                                 <Button fx:id="deleteCartBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="113.0" style="-fx-background-color: #ef2b2b; -fx-font-weight: bold;" text="Delete Item" />
                             </children>
                         </VBox>
@@ -53,7 +54,7 @@
                         </TableView>
                   <VBox layoutX="430.0" layoutY="6.0" prefHeight="200.0" prefWidth="150.0" spacing="10.0">
                      <children>
-                        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="154.0" style="-fx-background-color: #51c1f1; -fx-font-weight: bold;" text="Show Detail" />
+                        <Button fx:id="orderDetailBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="154.0" style="-fx-background-color: #51c1f1; -fx-font-weight: bold;" text="Show Detail" />
                         <Button fx:id="createSupportBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="154.0" style="-fx-background-color: #f18951; -fx-font-weight: bold;" text="Create Ticket" />
                         <Label fx:id="createTicketLbl" prefHeight="17.0" prefWidth="157.0" />
                      </children>
@@ -89,6 +90,7 @@
                            </children>
                         </VBox>
                         <Button fx:id="editUserProfileBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="106.0" style="-fx-background-color: #3be516; -fx-font-weight: bold;" text="Edit Profile" />
+                        <Button fx:id="logOutBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="106.0" style="-fx-background-color: #e50d0d; -fx-font-weight: bold;" text="Logout" />
                      </children>
                   </VBox>
                   <VBox layoutX="400.0" layoutY="20.0" prefHeight="337.0" prefWidth="176.0" spacing="10.0">
@@ -104,15 +106,44 @@
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                     <children>
-                        <TableView  fx:id="allTicketsTable" layoutX="7.0" layoutY="6.0" prefHeight="357.0" prefWidth="405.0">
+                        <TableView fx:id="allTicketsTable" layoutX="7.0" layoutY="6.0" prefHeight="357.0" prefWidth="405.0">
                         </TableView>
                         <VBox layoutX="430.0" layoutY="6.0" prefHeight="200.0" prefWidth="150.0">
                             <children>
-                                <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="154.0" style="-fx-background-color: #51c1f1; -fx-font-weight: bold;" text="Show Detail" />
+                                <Button fx:id="showTicketDetailBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="154.0" style="-fx-background-color: #51c1f1; -fx-font-weight: bold;" text="Show Detail" />
                             </children>
                         </VBox>
                     </children>
                 </AnchorPane>
+            </content>
+        </Tab>
+        <Tab fx:id="settingTab" text="Setting">
+            <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <HBox prefHeight="373.0" prefWidth="600.0">
+                     <children>
+                        <TableView fx:id="allStatusesTable" prefHeight="373.0" prefWidth="212.0">
+                        </TableView>
+                        <VBox prefHeight="373.0" prefWidth="171.0" spacing="10.0">
+                           <children>
+                              <Button fx:id="addStatusBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="162.0" text="Add Status">
+                                 <VBox.margin>
+                                    <Insets top="10.0" />
+                                 </VBox.margin>
+                              </Button>
+                              <Button fx:id="addSendingMethodBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="158.0" text="Add Sending Method" />
+                              <TextField fx:id="settingDataTf" prefHeight="36.0" prefWidth="157.0" />
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" />
+                           </padding>
+                        </VBox>
+                        <TableView fx:id="allSendingMethodsTable" prefHeight="373.0" prefWidth="253.0">
+                        </TableView>
+                     </children>
+                  </HBox>
+               </children></AnchorPane>
             </content>
         </Tab>
 
