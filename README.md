@@ -1,5 +1,6 @@
 # DB-FinalProject-OnlineShop
-> Summer - 2022
+> Summer - 2022 
+> Dr Sadredini
 <hr>
 
 # Tools
@@ -12,4 +13,6 @@
 
 ![Screenshot](images/2.png)
 
+![Screenshot](images/3.png)
 
+![Screenshot](images/4.png)
