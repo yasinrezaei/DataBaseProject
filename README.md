@@ -1,11 +1,10 @@
 # DB-FinalProject-OnlineShop
-> Summer - 2022 
-> Dr Sadredini
+> Summer 2022 - Dr Sadredini
 <hr>
 
 # Tools
-* Backend and UI : Java - JavaFx
-* DataBase : Musq;
+* Backend and UI : JavaFx
+* DataBase : Mysql
 
 <hr>
 
